@@ -27,7 +27,7 @@ public class ValorIndexable<T>
      * @return el elemento del valor indexable.
      */
     public T getElemento() {
-        // Aquí va su código.
+        return null;
     }
 
     /**
@@ -38,7 +38,7 @@ public class ValorIndexable<T>
      *         si es mayor.
      */
     @Override public int compareTo(ValorIndexable<T> valorIndexable) {
-        // Aquí va su código.
+        return 0;
     }
 
     /**
@@ -54,7 +54,7 @@ public class ValorIndexable<T>
      * @return el índice del valor indexable.
      */
     @Override public int getIndice() {
-        // Aquí va su código.
+        return 0;
     }
 
     /**
@@ -70,7 +70,7 @@ public class ValorIndexable<T>
      * @return el valor del valor indexable.
      */
     public double getValor() {
-        // Aquí va su código.
+        return 0;
     }
 
     /**
@@ -84,7 +84,8 @@ public class ValorIndexable<T>
             return false;
         @SuppressWarnings("unchecked") ValorIndexable<T> valorIndexable =
             (ValorIndexable<T>)objeto;
-        // Aquí va su código.
+
+            return false;
     }
 
     /**
@@ -92,6 +93,6 @@ public class ValorIndexable<T>
      * @return una representación en cadena del valor indexable.
      */
     @Override public String toString() {
-        // Aquí va su código.
+        return null;
     }
 }

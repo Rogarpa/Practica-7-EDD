@@ -30,7 +30,7 @@ public class ArbolAVL<T extends Comparable<T>>
          * @return la altura del vértice.
          */
         @Override public int altura() {
-            // Aquí va su código.
+            return altura;
         }
 
         /**
@@ -38,7 +38,12 @@ public class ArbolAVL<T extends Comparable<T>>
          * @return una representación en cadena del vértice AVL.
          */
         @Override public String toString() {
-            // Aquí va su código.
+            int alturaIzquierdo = -1;
+            int alturaDerecho = -1;
+            if(izquierdo != null) alturaIzquierdo = izquierdo.altura();
+            if(derecho != null) alturaDerecho = derecho.altura();
+
+            return super.toString() + " " + altura + "/" + (alturaIzquierdo - alturaDerecho);
         }
 
         /**
@@ -55,7 +60,8 @@ public class ArbolAVL<T extends Comparable<T>>
             if (objeto == null || getClass() != objeto.getClass())
                 return false;
             @SuppressWarnings("unchecked") VerticeAVL vertice = (VerticeAVL)objeto;
-            // Aquí va su código.
+            
+            return (altura == vertice.altura && super.equals(vertice));
         }
     }
 
@@ -80,7 +86,7 @@ public class ArbolAVL<T extends Comparable<T>>
      * @return un nuevo vértice con el elemento recibido dentro del mismo.
      */
     @Override protected Vertice nuevoVertice(T elemento) {
-        // Aquí va su código.
+        return new VerticeAVL(elemento);
     }
 
     /**
@@ -90,7 +96,8 @@ public class ArbolAVL<T extends Comparable<T>>
      * @param elemento el elemento a agregar.
      */
     @Override public void agrega(T elemento) {
-        // Aquí va su código.
+        super.agrega(elemento);
+        rebalanceo((VerticeAVL)(ultimoAgregado.padre));
     }
 
     /**
@@ -99,7 +106,101 @@ public class ArbolAVL<T extends Comparable<T>>
      * @param elemento el elemento a eliminar del árbol.
      */
     @Override public void elimina(T elemento) {
-        // Aquí va su código.
+        //puerco con casting
+        Vertice encontrado = (Vertice)(busca(elemento));
+        if(encontrado == null) return;
+
+        elementos--;
+        if(encontrado.izquierdo != null && encontrado.derecho != null)
+            encontrado = intercambiaEliminable(encontrado);
+        
+        eliminaVertice(encontrado);
+        
+        rebalanceo((VerticeAVL)(encontrado.padre));
+    }
+
+    private void rebalanceo(VerticeAVL v){
+        if(v == null) return;
+
+        v.altura = alturaVertice(v);
+        
+        int balance = balanceVertice(v);
+        VerticeAVL p,q,x,y,aux;
+        int H = v.altura;
+
+        p = (VerticeAVL)v.izquierdo;
+        q = (VerticeAVL)v.derecho;
+
+
+        
+        if(balance == -2){
+            x = (VerticeAVL)q.izquierdo;
+            y = (VerticeAVL)q.derecho;
+
+            //caso cuando p es vacio (-1)
+            if(balanceVertice(q) == 1) {
+                super.giraDerecha(q);
+                q.altura--;
+                if(x != null)x.altura++;
+                
+                q = (VerticeAVL)v.derecho;
+                x = (VerticeAVL)q.izquierdo;
+                y = (VerticeAVL)q.derecho; 
+            }
+            super.giraIzquierda(v);
+            
+            if(x != null && x.altura == H - 2) v.altura = H - 1;
+            else v.altura = H - 2;
+
+            if(v.altura == H - 1) q.altura = H;
+            else q.altura = H - 1;
+
+        }
+
+        if(balance == 2){
+            x = (VerticeAVL)p.izquierdo;
+            y = (VerticeAVL)p.derecho;
+            //caso cuando p es vacio (-1)
+            if(balanceVertice(p) == -1) {
+                super.giraIzquierda(p);
+                p.altura--;
+                if(y != null) y.altura++;
+                
+                p = (VerticeAVL)v.izquierdo;
+                x = (VerticeAVL)p.izquierdo;
+                y = (VerticeAVL)p.derecho; 
+            }
+            super.giraDerecha(v);
+            
+            if(y != null && y.altura == H - 2) v.altura = H - 1;
+            else v.altura = H - 2;
+
+            if(v.altura == H - 1) p.altura = H;
+            else p.altura = H - 1;
+
+        }
+
+        rebalanceo((VerticeAVL)v.padre);
+    }
+
+
+    private int alturaVertice(VerticeAVL v){
+        int alturaHijoIzquierdo, alturaHijoDerecho;
+        alturaHijoIzquierdo = -1;
+        alturaHijoDerecho = -1;
+        if(v.izquierdo != null) alturaHijoIzquierdo = v.izquierdo.altura();
+        if(v.derecho != null) alturaHijoDerecho = v.derecho.altura();
+        
+        return 1 + Math.max(alturaHijoIzquierdo, alturaHijoDerecho);
+    }
+
+    private int balanceVertice(VerticeAVL v){
+        int alturaIzquierdo = -1;
+        int alturaDerecho = -1;
+
+        if(v.izquierdo != null) alturaIzquierdo = v.izquierdo().altura();
+        if(v.derecho != null) alturaDerecho = v.derecho().altura();
+        return alturaIzquierdo - alturaDerecho;
     }
 
     /**

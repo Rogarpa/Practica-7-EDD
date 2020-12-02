@@ -17,12 +17,12 @@ public class MonticuloMinimo<T extends ComparableIndexable<T>>
 
         /* Nos dice si hay un siguiente elemento. */
         @Override public boolean hasNext() {
-            // Aquí va su código.
+            return false;
         }
 
         /* Regresa el siguiente elemento. */
         @Override public T next() {
-            // Aquí va su código.
+            return null;
         }
     }
 
@@ -42,7 +42,7 @@ public class MonticuloMinimo<T extends ComparableIndexable<T>>
 
         /* Regresa el índice. */
         @Override public int getIndice() {
-            // Aquí va su código.
+            return 0;
         }
 
         /* Define el índice. */
@@ -52,7 +52,7 @@ public class MonticuloMinimo<T extends ComparableIndexable<T>>
 
         /* Compara un adaptador con otro. */
         @Override public int compareTo(Adaptador<T> adaptador) {
-            // Aquí va su código.
+            return 0;
         }
     }
 
@@ -116,7 +116,7 @@ public class MonticuloMinimo<T extends ComparableIndexable<T>>
      * @throws IllegalStateException si el montículo es vacío.
      */
     @Override public T elimina() {
-        // Aquí va su código.
+        return null;
     }
 
     /**
@@ -134,7 +134,7 @@ public class MonticuloMinimo<T extends ComparableIndexable<T>>
      *         <code>false</code> en otro caso.
      */
     @Override public boolean contiene(T elemento) {
-        // Aquí va su código.
+        return false;
     }
 
     /**
@@ -143,7 +143,7 @@ public class MonticuloMinimo<T extends ComparableIndexable<T>>
      *         <code>false</code> en otro caso.
      */
     @Override public boolean esVacia() {
-        // Aquí va su código.
+        return false;
     }
 
     /**
@@ -166,7 +166,7 @@ public class MonticuloMinimo<T extends ComparableIndexable<T>>
      * @return el número de elementos en el montículo mínimo.
      */
     @Override public int getElementos() {
-        // Aquí va su código.
+        return 0;
     }
 
     /**
@@ -177,7 +177,7 @@ public class MonticuloMinimo<T extends ComparableIndexable<T>>
      *         que el número de elementos.
      */
     @Override public T get(int i) {
-        // Aquí va su código.
+        return null;
     }
 
     /**
@@ -185,7 +185,7 @@ public class MonticuloMinimo<T extends ComparableIndexable<T>>
      * @return una representación en cadena del montículo mínimo.
      */
     @Override public String toString() {
-        // Aquí va su código.
+        return null;
     }
 
     /**
@@ -199,7 +199,8 @@ public class MonticuloMinimo<T extends ComparableIndexable<T>>
             return false;
         @SuppressWarnings("unchecked") MonticuloMinimo<T> monticulo =
             (MonticuloMinimo<T>)objeto;
-        // Aquí va su código.
+            
+            return false;
     }
 
     /**
@@ -219,6 +220,6 @@ public class MonticuloMinimo<T extends ComparableIndexable<T>>
      */
     public static <T extends Comparable<T>>
     Lista<T> heapSort(Coleccion<T> coleccion) {
-        // Aquí va su código.
+        return null;
     }
 }

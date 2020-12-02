@@ -31,7 +31,8 @@ public class ArbolRojinegro<T extends Comparable<T>>
          * @param elemento el elemento del vértice.
          */
         public VerticeRojinegro(T elemento) {
-            // Aquí va su código.
+            super(elemento);
+            color = Color.NINGUNO;
         }
 
         /**
@@ -39,7 +40,9 @@ public class ArbolRojinegro<T extends Comparable<T>>
          * @return una representación en cadena del vértice rojinegro.
          */
         public String toString() {
-            // Aquí va su código.
+            if(color == Color.ROJO) return "R{" + elemento.toString() + "}";  
+            else return "N{" + elemento.toString() + "}";  
+
         }
 
         /**
@@ -57,7 +60,8 @@ public class ArbolRojinegro<T extends Comparable<T>>
                 return false;
             @SuppressWarnings("unchecked")
                 VerticeRojinegro vertice = (VerticeRojinegro)objeto;
-            // Aquí va su código.
+
+                return (color == vertice.color && super.equals(objeto));
         }
     }
 
@@ -66,7 +70,7 @@ public class ArbolRojinegro<T extends Comparable<T>>
      * de {@link ArbolBinarioOrdenado}.
      */
     public ArbolRojinegro() {
-        super();
+        //super();
     }
 
     /**
@@ -86,7 +90,7 @@ public class ArbolRojinegro<T extends Comparable<T>>
      * @return un nuevo vértice rojinegro con el elemento recibido dentro del mismo.
      */
     @Override protected Vertice nuevoVertice(T elemento) {
-        // Aquí va su código.
+        return new VerticeRojinegro(elemento);
     }
 
     /**
@@ -97,7 +101,12 @@ public class ArbolRojinegro<T extends Comparable<T>>
      *         VerticeRojinegro}.
      */
     public Color getColor(VerticeArbolBinario<T> vertice) {
-        // Aquí va su código.
+        if(!(vertice instanceof ArbolRojinegro.VerticeRojinegro)) throw new ClassCastException("Obteniendo color de vertice no rojinegro");
+        return ((VerticeRojinegro)vertice).color;
+    }
+
+    private boolean esRojo(VerticeRojinegro v){
+        return (v != null && v.color == Color.ROJO);
     }
 
     /**
@@ -107,7 +116,60 @@ public class ArbolRojinegro<T extends Comparable<T>>
      * @param elemento el elemento a agregar.
      */
     @Override public void agrega(T elemento) {
-        // Aquí va su código.
+        super.agrega(elemento);
+        ((VerticeRojinegro)ultimoAgregado).color = Color.ROJO;
+        balanceoAgrega(((VerticeRojinegro)ultimoAgregado));
+    }
+
+    private void balanceoAgrega(VerticeRojinegro v){
+        //VAN A ENTRAR NULLS?
+        VerticeRojinegro p = (VerticeRojinegro)v.padre;
+        //CASO1
+        if(p == null){
+            v.color = Color.NEGRO;
+            return;
+        } 
+
+        //CASO2
+        if(!(esRojo(p))) return;
+
+        //CASO3(quitando problema de tener rojos empalmados y pasándolo abuelo).
+        VerticeRojinegro a = (VerticeRojinegro)p.padre;
+        VerticeRojinegro t = null;
+        
+        if(a.izquierdo == p) t = (VerticeRojinegro) a.derecho;
+        else t = (VerticeRojinegro)a.izquierdo;
+
+        if(esRojo(t)){
+            t.color = Color.NEGRO;
+            p.color = Color.NEGRO;
+            a.color = Color.ROJO;
+            balanceoAgrega(a);
+            return;
+        }
+        //CASO4 (ignoramos t y hay cruzados)
+        //MEJORABLE
+        VerticeRojinegro aux;
+        if(a.izquierdo == p && p.derecho == v){
+            super.giraIzquierda(p);
+            aux = p;
+            p = v;
+            v = aux;
+        }
+
+        if(a.derecho == p && p.izquierdo == v){
+            super.giraDerecha(p);
+            aux = p;
+            p = v;
+            v = aux;
+        }
+
+        //CASOFINAL (giramos cruzados)
+        p.color = Color.NEGRO;
+        a.color = Color.ROJO;
+        if(p.izquierdo == v) super.giraDerecha(a);
+        if(p.derecho == v) super.giraIzquierda(a);
+
     }
 
     /**
@@ -117,7 +179,112 @@ public class ArbolRojinegro<T extends Comparable<T>>
      * @param elemento el elemento a eliminar del árbol.
      */
     @Override public void elimina(T elemento) {
-        // Aquí va su código.
+        if(elemento == null) return;
+
+        Vertice encontrado = vertice(busca(elemento));
+        if(encontrado == null) return;
+
+
+        elementos--;
+        if(encontrado.izquierdo != null && encontrado.derecho != null)
+            encontrado = intercambiaEliminable(encontrado);
+        if(encontrado.izquierdo == null && encontrado.derecho == null){
+            VerticeRojinegro fantasma = new VerticeRojinegro(null);
+            fantasma.color = Color.NEGRO;
+            encontrado.izquierdo = fantasma;
+            fantasma.padre = encontrado;
+        }
+        
+        VerticeRojinegro hijastro;
+        if(encontrado.derecho == null) hijastro = (VerticeRojinegro)encontrado.izquierdo;
+        else hijastro = (VerticeRojinegro)encontrado.derecho;
+        
+        eliminaVertice(encontrado);
+        
+        //casos aislados
+        //1
+        if(esRojo(hijastro)) hijastro.color = Color.NEGRO;
+        
+        //3
+        else if(!(esRojo((VerticeRojinegro)encontrado))) balanceoElimina((VerticeRojinegro)hijastro);
+        //2 no necesario
+        
+
+        if(hijastro.elemento == null){
+            if(hijastro.padre == null) raiz = null;
+            else if(hijastro.padre.izquierdo == hijastro) hijastro.padre.izquierdo = null;
+            else hijastro.padre.derecho = null;
+        }
+
+        
+    }
+
+    private void balanceoElimina(VerticeRojinegro v){
+        if(v == null) return;
+        //Caso 1 padre vacio
+
+        if(v.padre == null) return;
+
+        //Caso 2 hermano no vacio puesto tenia hermano negro y giramos para dar tela para cortar a v. 
+        VerticeRojinegro h,p = (VerticeRojinegro)v.padre;
+
+        //defino h
+        if(p.izquierdo == v) h = (VerticeRojinegro)p.derecho;
+        else h = (VerticeRojinegro)p.izquierdo;
+
+        if(esRojo(h)){
+            p.color =  Color.ROJO;
+            h.color = Color.NEGRO;
+            if(p.derecho == v) super.giraDerecha(p);
+            else super.giraIzquierda(p);
+            
+            //reactualizando hermano
+            if(p.izquierdo == v) h = (VerticeRojinegro)p.derecho;
+            else h = (VerticeRojinegro)p.izquierdo;
+        }
+         
+        //Caso 3 caso amplio en el cual quitamos un negro rama h pero compensamos recursivamente en p.
+        //no necesita de anteriores.
+        VerticeRojinegro hi,hd;
+        hi = (VerticeRojinegro)h.izquierdo;
+        hd = (VerticeRojinegro)h.derecho;
+
+        if(!esRojo(p) && !esRojo(h) && !esRojo(hi) && !esRojo(hd)){
+            h.color = Color.ROJO;
+            balanceoElimina(p);
+            return;
+        }
+        //Caso4 p nos da material para compensar y pintar h de rojo así que cambiamos.
+        if(!esRojo(h) && !esRojo(hi) && !esRojo(hd) && esRojo(p)){
+            h.color = Color.ROJO;
+            p.color = Color.NEGRO;
+            return;
+        }
+
+        //Caso5 quitamos negro de h con táctica conocida.
+        if((p.izquierdo == v && esRojo(hi) && !esRojo(hd)) 
+        || (p.derecho == v && !esRojo(hi) && esRojo(hd))){
+            h.color = Color.ROJO;
+            if(esRojo(hi)) hi.color = Color.NEGRO;
+            else hd.color = Color.NEGRO;
+
+            if(p.izquierdo == v) super.giraDerecha(h);
+            else super.giraIzquierda(h);
+           
+            //reactualizando hermano
+            if(v.padre.izquierdo == v) h = (VerticeRojinegro)v.padre.derecho;
+            else h = (VerticeRojinegro)v.padre.izquierdo;
+        }
+
+        //Caso 6 
+        //solucionar hi y hd
+        h.color = p.color;
+        p.color = Color.NEGRO;
+        if(v.padre.izquierdo == v) if(h.derecho != null) ((VerticeRojinegro)h.derecho).color = Color.NEGRO;
+        if(v.padre.derecho == v) if(h.izquierdo != null) ((VerticeRojinegro)h.izquierdo).color = Color.NEGRO;
+
+        if(v.padre.izquierdo == v) super.giraIzquierda(p);
+        else super.giraDerecha(p);
     }
 
     /**
